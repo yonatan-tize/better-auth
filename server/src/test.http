@@ -1,0 +1,26 @@
+@BaseURL = http://localhost:4000
+
+### Register user
+POST {{BaseURL}}/api/auth/sign-up/email
+Content-Type: application/json
+
+{
+  "email": "user2@example.com",
+  "password": "strongpassword",
+  "name": "User Name"
+}
+
+
+### find all users
+GET {{BaseURL}}/users
+
+
+### create a task
+POST {{BaseURL}}/tasks
+Content-Type: application/json
+
+{
+  "title": "New Task",
+  "completed": false,
+  "userId": "cTcAvqBnlwqj1Bfr13FtxKYSnNV0ytBr"
+}
