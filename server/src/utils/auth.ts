@@ -24,8 +24,8 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
-    maxPasswordLength: 20,
+    // requireEmailVerification: true,
+    maxPasswordLength: 128,
     minPasswordLength: 8,
     autoSignIn: false,
   },
@@ -33,7 +33,6 @@ export const auth = betterAuth({
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      redirectURI: process.env.GITHUB_REDIRECT_URI!,
     },
   },
   trustedOrigins: ['http://localhost:4000', 'http://localhost:3000'],

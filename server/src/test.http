@@ -5,7 +5,7 @@ POST {{BaseURL}}/api/auth/sign-up/email
 Content-Type: application/json
 
 {
-  "email": "user2@example.com",
+  "email": "user3@example.com",
   "password": "strongpassword",
   "name": "User Name"
 }
