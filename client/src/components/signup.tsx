@@ -1,20 +1,85 @@
 "use client";
+import { authClient } from "@/lib/auth-client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import EntityPageLoading from "./EntityPageloading";
 
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Signing up with:", { username, email, password });
+
+    const { data, error } = await authClient.signUp.email(
+      {
+        email,
+        password,
+        name: username,
+        callbackURL: "/dashboard",
+      },
+      {
+        onRequest: (ctx) => {
+          //show loading
+          setIsLoading(true);
+        },
+        onSuccess: (ctx) => {
+          setIsLoading(false);
+          router.push("/sign-in");
+          //redirect to the dashboard or sign in page
+        },
+        onError: (ctx) => {
+          setIsLoading(false);
+          // display the error message
+          alert(ctx.error.message);
+        },
+      }
+    );
+
+    if (error) {
+      console.error("Error during sign up:", error);
+      return;
+    }
+
     alert("Form submitted. Check the console for the data.");
   };
 
-  const handleGitHubLogin = () => {
-    console.log("Redirecting to GitHub for authentication...");
-    alert("GitHub login initiated. Check the console.");
+  const handleGitHubLogin = async () => {
+    const { data, error } = await authClient.signIn.social(
+      {
+        provider: "github",
+        callbackURL: "http://localhost:3000/dashboard",
+      },
+      {
+        onRequest: (ctx) => {
+          console.log("Sign-in request started...");
+          setIsLoading(true);
+        },
+        onSuccess: (ctx) => {
+          console.log("Sign-in successful!", ctx.data);
+          // Redirect to dashboard or another page
+          window.location.href = "/dashboard";
+        },
+        onError: (ctx) => {
+          console.error("Error during sign-in:", ctx.error);
+          alert(`Sign-in failed: ${ctx.error.message}`);
+        },
+      }
+    );
+
+    if (error) {
+      console.error("Error during GitHub login:", error);
+      return;
+    }
+
+    if (data) {
+      console.log("GitHub login data:", data);
+    }
+
+    console.log("data:", data);
   };
 
   return (
@@ -33,7 +98,7 @@ const SignUpPage = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full p-2.5 rounded border border-gray-300"
+                className="w-full p-2.5 rounded border border-gray-300 text-black"
               />
             </div>
             <div className="mb-4">
@@ -46,7 +111,7 @@ const SignUpPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full p-2.5 rounded border border-gray-300"
+                className="w-full p-2.5 rounded border border-gray-300 text-black"
               />
             </div>
             <div className="mb-4">
@@ -59,7 +124,7 @@ const SignUpPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full p-2.5 rounded border border-gray-300"
+                className="w-full p-2.5 rounded border border-gray-300 text-black"
               />
             </div>
             <button
@@ -75,7 +140,8 @@ const SignUpPage = () => {
           <h2 className="mb-5 text-2xl font-bold text-gray-800">Or</h2>
           <button
             onClick={handleGitHubLogin}
-            className="w-full p-2.5 border-none rounded bg-gray-800 text-white cursor-pointer text-base flex items-center justify-center gap-2.5 hover:bg-gray-900"
+            disabled={isLoading}
+            className="w-full p-2.5 border-none rounded bg-gray-800 text-white cursor-pointer text-base flex items-center justify-center gap-2.5 hover:bg-gray-900 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <svg
               height="20"
@@ -90,7 +156,7 @@ const SignUpPage = () => {
                 d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
               ></path>
             </svg>
-            Sign Up with GitHub
+            {isLoading ? "Redirecting..." : "Sign Up with GitHub"}
           </button>
         </div>
       </div>

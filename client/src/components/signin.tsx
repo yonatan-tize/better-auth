@@ -1,19 +1,73 @@
 "use client";
+import { authClient } from "@/lib/auth-client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const SignInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Signing in with:", { email, password });
-    alert("Form submitted. Check the console for the data.");
+    const { data, error } = await authClient.signIn.email(
+      {
+        email,
+        password,
+        callbackURL: "/dashboard",
+      },
+      {
+        onRequest: (ctx) => {
+          console.log("Sign-in request started...");
+          setIsLoading(true);
+        },
+        onSuccess: (ctx) => {
+          console.log("Sign-in successful!", ctx);
+          // Redirect to dashboard or another page
+          window.location.href = "/dashboard";
+        },
+        onError: (ctx) => {
+          console.error("Error during sign-in:", ctx.error);
+          alert(`Sign-in failed: ${ctx.error.message}`);
+        },
+      }
+    );
   };
 
-  const handleGitHubLogin = () => {
-    console.log("Redirecting to GitHub for authentication...");
-    alert("GitHub login initiated. Check the console.");
+  const handleGitHubLogin = async () => {
+    const { data, error } = await authClient.signIn.social(
+      {
+        provider: "github",
+        callbackURL: "http://localhost:3000/dashboard",
+      },
+      {
+        onRequest: (ctx) => {
+          console.log("Sign-in request started...");
+          setIsLoading(true);
+        },
+        onSuccess: (ctx) => {
+          console.log("Sign-in successful!", ctx.data);
+          // Redirect to dashboard or another page
+          window.location.href = "/dashboard";
+        },
+        onError: (ctx) => {
+          console.error("Error during sign-in:", ctx.error);
+          alert(`Sign-in failed: ${ctx.error.message}`);
+        },
+      }
+    );
+
+    if (error) {
+      console.error("Error during GitHub login:", error);
+      return;
+    }
+
+    if (data) {
+      console.log("GitHub login data:", data);
+    }
+
+    console.log("data:", data);
   };
 
   return (
@@ -50,9 +104,10 @@ const SignInPage = () => {
             </div>
             <button
               type="submit"
-              className="w-full p-2.5 border-none rounded bg-blue-500 text-white cursor-pointer text-base hover:bg-blue-600"
+              disabled={isLoading}
+              className="w-full p-2.5 border-none rounded bg-blue-500 text-white cursor-pointer text-base hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              Sign In
+              {isLoading ? "Signing In..." : "Sign In"}
             </button>
           </form>
         </div>
