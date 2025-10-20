@@ -7,7 +7,7 @@ import { Prisma } from 'generated/prisma';
 @Injectable()
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
-  create(createTaskDto: Prisma.tasksCreateInput) {
+  create(createTaskDto: Prisma.TasksCreateInput) {
     return this.prisma.tasks.create({
       data: createTaskDto,
     });

@@ -19,7 +19,7 @@ export class TasksController {
 
   @AllowAnonymous()
   @Post()
-  create(@Body() createTaskDto: Prisma.tasksCreateInput) {
+  create(@Body() createTaskDto: Prisma.TasksCreateInput) {
     return this.tasksService.create(createTaskDto);
   }
 

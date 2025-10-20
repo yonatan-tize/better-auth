@@ -6,24 +6,24 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.user.findMany();
+    return this.prisma.users.findMany();
   }
 
   findOne(id: string) {
-    return this.prisma.user.findUnique({
+    return this.prisma.users.findUnique({
       where: { id },
     });
   }
 
   update(id: string, updateUserDto: any) {
-    return this.prisma.user.update({
+    return this.prisma.users.update({
       where: { id },
       data: updateUserDto,
     });
   }
 
   remove(id: string) {
-    return this.prisma.user.delete({
+    return this.prisma.users.delete({
       where: { id },
     });
   }
