@@ -14,23 +14,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id
+model Users {
+  id            String     @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean    @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @default(now()) @updatedAt
+  role          String?
+  sessionss     Sessions[]
   accounts      Account[]
-  tasks         tasks[]
+  tasks         Tasks[]
 
   @@unique([email])
-  @@map("user")
+  @@map("users")
 }
 
-model Session {
+model Sessions {
   id        String   @id
   expiresAt DateTime
   token     String
@@ -39,10 +40,10 @@ model Session {
   ipAddress String?
   userAgent String?
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users     Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
-  @@map("session")
+  @@map("sessions")
 }
 
 model Account {
@@ -50,7 +51,7 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users                 Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -75,13 +76,12 @@ model Verification {
   @@map("verification")
 }
 
-
-model tasks {
-  id        String   @id() @default(uuid())
+model Tasks {
+  id        String   @id @default(uuid())
   title     String
   completed Boolean  @default(false)
   userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users     Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
